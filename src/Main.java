@@ -1,23 +1,21 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        List<List<Double>> R = new ArrayList<List<Double>>();
-        CSV csv = new CSV("options.csv");
+        System.out.println("Entrez le nom du fichier avec l'extensions : ");
+        Scanner in = new Scanner(System.in);
+        String userChoice = in.nextLine();
+        CSV csv = new CSV(userChoice);
+
         csv.readCSV();
-        System.out.println((csv.Options));
-        R = csv.Normalize();
-        System.out.println(R);
-
+        csv.Normalize();
         csv.calcul();
-        System.out.println((csv.Negative));
-        System.out.println((csv.Ab));
-        System.out.println((csv.Aw));
-        System.out.println((csv.Db));
-        System.out.println((csv.Dw));
-        System.out.println((csv.Sw));
+        Map<String, Double> sortedMap = csv.combineSortLists();
 
+        // Affichage du Map trié
+        for (Map.Entry<String, Double> entry : sortedMap.entrySet()) {
+            System.out.println("Clé: " + entry.getKey() + ", Valeur: " + entry.getValue());
+        }
     }
 }

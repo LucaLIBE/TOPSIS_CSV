@@ -6,7 +6,7 @@ import java.util.*;
 public class CSV {
     protected  String name;
     protected String csvDelimiter = ",";
-    protected List<String> Criteria = new ArrayList<>();
+    protected List<String> Names = new ArrayList<>();
     protected List<Double> Weight = new ArrayList<>();
     protected List<Integer> Negative = new ArrayList<>();
     protected List<List<Double>> Options = new ArrayList<List<Double>>();
@@ -22,21 +22,29 @@ public class CSV {
     }
     public void readCSV() {
         try {
+            //Lecture du fichier .csv
             File file = new File(this.name);
             Scanner scanner = new Scanner(file);
-            scanner.nextLine();
+            int epo = 0;
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 String[] data = line.split(csvDelimiter);
-                List<Double> temp = new ArrayList<>();
-                    Criteria.add(data[0]);
+                //Récupération des noms des différentes options
+                if(epo==0){
+                    for(int i = 3; i<data.length;i++){Names.add(data[i]);epo=1;}
+                }
+                else {
+                    //Récupération des poids, des impacts (négatifs, positifs) et des valeurs associés à chaque critères
+                    List<Double> temp = new ArrayList<>();
                     Weight.add(Double.parseDouble(data[1]));
                     Negative.add(Integer.parseInt(data[2]));
-                for(int i = 0; i< data.length-3;i++){
-                    temp.add(Double.parseDouble(data[i+3]));
+                    for (int i = 0; i < data.length - 3; i++) {
+                        temp.add(Double.parseDouble(data[i + 3]));
+                    }
+                    Options.add(temp);
                 }
-                Options.add(temp);
             }
+            //Transposition de la matrice des valeurs pour un traitement plus facile par la suite
             Options = transpose(Options);
             scanner.close();
         } catch (
@@ -58,24 +66,22 @@ public class CSV {
         return ret;
     }
 
-    public List<List<Double>> Normalize(){
-        List<List<Double>> ret = Options;
+    public void Normalize(){
         int n = Options.get(0).size();
         int m = Options.size();
         double W = 0.0;
         for(Double wei : Weight){W += wei;}
-        double R;
+        double r;
         for(int j=0; j<n; j++){
-            R = 0.0;
+            r = 0.0;
             for(int i=0; i<m; i++){
-                R = R + Math.pow(Options.get(i).get(j),2);
+                r = r + Math.pow(Options.get(i).get(j),2);
             }
-            R = Math.sqrt(R);
+            r = Math.sqrt(r);
             for(int i=0; i<m; i++){
-                ret.get(i).set(j,(Options.get(i).get(j)/R)*(Weight.get(j)/W));
+                Options.get(i).set(j,(Options.get(i).get(j)/r)*(Weight.get(j)/W));
             }
         }
-        return ret;
     }
 
     public void calcul(){
@@ -105,8 +111,24 @@ public class CSV {
             Dw.add(diw);
             Db.add(dib);
         }
+    }
+    public Map<String, Double>  combineSortLists() {
+        TreeMap<String, Double> stringToValueMap = new TreeMap<>();
 
+        for(int i = 0; i<Names.size();i++){
+            stringToValueMap.put(Names.get(i),Sw.get(i));
+        }
 
+        // Conversion du Map en List<Map.Entry> pour trier les paires clé-valeur
+        List<Map.Entry<String, Double>> sortedEntries = new ArrayList<>(stringToValueMap.entrySet());
+        Collections.sort(sortedEntries, Collections.reverseOrder(Map.Entry.comparingByValue()));
+
+        // Création d'un nouveau LinkedHashMap pour stocker les paires clé-valeur triées
+        Map<String, Double> sortedMap = new LinkedHashMap<>();
+        for (Map.Entry<String, Double> entry : sortedEntries) {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+        return sortedMap;
     }
 }
 

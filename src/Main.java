@@ -8,14 +8,16 @@ public class Main {
         String userChoice = in.nextLine();
         CSV csv = new CSV(userChoice);
 
+        //Calcul du score TOPSIS
         csv.readCSV();
         csv.Normalize();
-        csv.calcul();
+        csv.Calcul();
+
         Map<String, Double> sortedMap = csv.combineSortLists();
 
         // Affichage du Map trié
         for (Map.Entry<String, Double> entry : sortedMap.entrySet()) {
-            System.out.println("Clé: " + entry.getKey() + ", Valeur: " + entry.getValue());
+            System.out.println("Nom: " + entry.getKey() + ", Score: " + entry.getValue());
         }
     }
 }

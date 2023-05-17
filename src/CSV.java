@@ -53,6 +53,7 @@ public class CSV {
         }
     }
 
+    //Transposition d'une ArrayList
     static <T> List<List<T>> transpose(List<List<T>> table) {
         List<List<T>> ret = new ArrayList<List<T>>();
         int N = table.get(0).size();
@@ -66,6 +67,7 @@ public class CSV {
         return ret;
     }
 
+    //Normalisation de la matrice Options qui contient les données de chaque options pour chaque critères
     public void Normalize(){
         int n = Options.get(0).size();
         int m = Options.size();
@@ -84,9 +86,11 @@ public class CSV {
         }
     }
 
-    public void calcul(){
+    //Suite de la méthode TOPSIS avec les calculs des vecteurs d'alternatives, des distances et de la similarité
+    public void Calcul(){
         List<List<Double>> opt = transpose(Options);
         int i = 0;
+        //Déterminer les max et min de la matrice normalisé selon l'impact positif ou négatif
         for(List<Double> value : opt){
             if(Negative.get(i)==1) {
                 Aw.add(Collections.max(value));
@@ -98,6 +102,7 @@ public class CSV {
             i++;
         }
 
+        //Déterminer les distances entre l'alternative cible et les meilleurs et pires alternatives
         for(List<Double> val : Options){
             Double diw = 0.0;
             Double dib = 0.0;
@@ -107,14 +112,19 @@ public class CSV {
             }
             diw = Math.sqrt(diw);
             dib = Math.sqrt(dib);
-            Sw.add(diw/(diw+dib));
             Dw.add(diw);
             Db.add(dib);
+            //Déterminer le score TOPSIS
+            Sw.add(diw/(diw+dib));
+
         }
     }
+
+    //Combiner et trier les scores TOPSIS dans l'ordre décroissant
     public Map<String, Double>  combineSortLists() {
         TreeMap<String, Double> stringToValueMap = new TreeMap<>();
 
+        //Combiner noms de l'options avec son score
         for(int i = 0; i<Names.size();i++){
             stringToValueMap.put(Names.get(i),Sw.get(i));
         }
